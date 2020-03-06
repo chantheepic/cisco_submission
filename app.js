@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const sanitize = require("mongo-sanitize");
+const url = require("url");
 require("dotenv/config");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -17,14 +18,6 @@ const ArbitrarySchema = mongoose.Schema(
 );
 const ArbitraryModel = mongoose.model("ArbitraryModel", ArbitrarySchema);
 
-// Error
-let sendError = (req, errorMessage) => {
-  return { verb: req.method, url: req.path, message: errorMessage };
-};
-app.use((error, req, res, next) => {
-  res.json({ verb: req.method, url: req.path, message: error.message });
-});
-
 // Helpers
 jsonReplaceKey = string => {
   string = JSON.stringify(string);
@@ -33,6 +26,22 @@ jsonReplaceKey = string => {
   return string;
 };
 
+fullPath = (req, path = undefined) => {
+  return url.format({
+    protocol: req.protocol,
+    host: req.get("host"),
+    pathname: (path === undefined) ? req.path : String(path)
+  });
+}
+
+// Error
+let sendError = (req, errorMessage) => {
+  return { verb: req.method, url: fullPath(req), message: errorMessage };
+};
+app.use((error, req, res, next) => {
+  res.json({ verb: req.method, url: fullPath(req), message: error.message });
+});
+
 // Routes
 app.get("/ping", (req, res) => {
   res.send("pong");
@@ -40,7 +49,8 @@ app.get("/ping", (req, res) => {
 
 app.get("/api/objects", async (req, res) => {
   try {
-    const response = await ArbitraryModel.find().distinct("_id");
+    let response = await ArbitraryModel.find().distinct("_id");
+    response = response.map(url => {return {"url": fullPath(req, url)}})
     res.json(response);
   } catch (error) {
     res.json(sendError(req, error.message));
@@ -98,10 +108,10 @@ app.patch("/api/objects/:uid", async (req, res) => {
 app.delete("/api/objects/:uid", async (req, res) => {
   try {
     await ArbitraryModel.remove({ _id: req.params.uid });
-    res.send({});
+    res.end();
   } catch (error) {
     res.json(sendError(req, error.message));
   }
 });
 
-app.listen(process.env.PORT || 3000);
+module.exports = app.listen(process.env.PORT || 3000);
