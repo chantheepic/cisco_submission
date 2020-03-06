@@ -6,7 +6,8 @@ require("dotenv/config");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-mongoose.connect(process.env.AZURE_MONGO_CREDENTIALS, () =>
+// process.env.AZURE_MONGO_CREDENTIALS
+mongoose.connect('mongodb+srv://chanminpark:Amoriamor1@cluster0-ywyv8.azure.mongodb.net/cisco?retryWrites=true&w=majority', () =>
   console.log("connected")
 );
 
