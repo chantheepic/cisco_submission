@@ -18,11 +18,19 @@ const ArbitrarySchema = mongoose.Schema(
 const ArbitraryModel = mongoose.model("ArbitraryModel", ArbitrarySchema);
 
 // Error
+let sendError = (req, errorMessage) => {
+  return { verb: req.method, url: req.path, message: errorMessage };
+};
 app.use((error, req, res, next) => {
-  res.send(req)
+  res.json({ verb: req.method, url: req.path, message: error.message });
 });
-let sendError = (req, error) => {
-  return { verb: req.method, url: req.path, message: error.message };
+
+// Helpers
+jsonReplaceKey = string => {
+  string = JSON.stringify(string);
+  string = string.replace(/\"_id\":/g, '"uid":');
+  string = JSON.parse(string);
+  return string;
 };
 
 // Routes
@@ -35,7 +43,7 @@ app.get("/api/objects", async (req, res) => {
     const response = await ArbitraryModel.find().distinct("_id");
     res.json(response);
   } catch (error) {
-    res.json(sendError(req, error));
+    res.json(sendError(req, error.message));
   }
 });
 
@@ -43,12 +51,13 @@ app.get("/api/objects/:uid", async (req, res) => {
   try {
     let clean = sanitize(req.params.uid);
     let resp = await ArbitraryModel.findById(clean);
-    resp = JSON.stringify(resp);
-    resp = resp.replace(/\"_id\":/g, '"uid":');
-    resp = JSON.parse(resp);
-    res.json(resp);
+    resp = jsonReplaceKey(resp);
+
+    if (resp == null) {
+      res.json(sendError(req, "object does not exist"));
+    } else res.json(resp);
   } catch (error) {
-    res.json(sendError(req, error));
+    res.json(sendError(req, error.message));
   }
 });
 
@@ -56,27 +65,33 @@ app.post("/api/objects", async (req, res) => {
   try {
     let clean = sanitize(req.body);
     let resp = await new ArbitraryModel(clean).save();
-    resp = JSON.stringify(resp);
-    resp = resp.replace(/\"_id\":/g, '"uid":');
-    resp = JSON.parse(resp);
-    res.json(resp);
-  } catch (err) {
-    res.json(sendError(req, error));
+    resp = jsonReplaceKey(resp);
+
+    if (resp == null) {
+      res.json(sendError(req, "object does not exist"));
+    } else res.json(resp);
+  } catch (error) {
+    res.json(sendError(req, error.message));
   }
 });
 
 app.patch("/api/objects/:uid", async (req, res) => {
   try {
-    let resp = await ArbitraryModel.findOneAndUpdate({ _id: req.params.uid }, req.body, {
-      new: true,
-      overwrite: true
-    });
-    resp = JSON.stringify(resp);
-    resp = resp.replace(/\"_id\":/g, '"uid":');
-    resp = JSON.parse(resp);
-    res.json(resp)
-  } catch (err) {
-    res.json(sendError(req, error));
+    let resp = await ArbitraryModel.findOneAndUpdate(
+      { _id: req.params.uid },
+      req.body,
+      {
+        new: true,
+        overwrite: true
+      }
+    );
+    resp = jsonReplaceKey(resp);
+
+    if (resp == null) {
+      res.json(sendError(req, "object does not exist"));
+    } else res.json(resp);
+  } catch (error) {
+    res.json(sendError(req, error.message));
   }
 });
 
@@ -84,9 +99,9 @@ app.delete("/api/objects/:uid", async (req, res) => {
   try {
     await ArbitraryModel.remove({ _id: req.params.uid });
     res.send({});
-  } catch (err) {
-    res.json(sendError(req, error));
+  } catch (error) {
+    res.json(sendError(req, error.message));
   }
 });
 
-app.listen(process.env.PORT || 3000)
+app.listen(process.env.PORT || 3000);
