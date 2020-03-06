@@ -6,8 +6,7 @@ require("dotenv/config");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// process.env.AZURE_MONGO_CREDENTIALS
-mongoose.connect('mongodb+srv://chanminpark:Amoriamor1@cluster0-ywyv8.azure.mongodb.net/cisco?retryWrites=true&w=majority', () =>
+mongoose.connect(process.env.AZURE_MONGO_CREDENTIALS, () =>
   console.log("connected")
 );
 
@@ -88,4 +87,3 @@ app.delete("/api/objects/:uid", async (req, res) => {
 });
 
 app.listen(process.env.PORT || 3000)
-// app.listen(3000);
