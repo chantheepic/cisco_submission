@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/22b4d109-be13-4eff-ae9d-42176d1cbf33/resourceGroups/cmpcisco/providers/Microsoft.Web/sites/ChanMinPark-Cisco",
+    "appService.deploySubpath": ""
+}
