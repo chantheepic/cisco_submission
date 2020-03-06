@@ -19,7 +19,7 @@ const ArbitraryModel = mongoose.model("ArbitraryModel", ArbitrarySchema);
 
 // Error
 app.use((error, req, res, next) => {
-  res.json(req)
+  res.send(req)
 });
 let sendError = (req, error) => {
   return { verb: req.method, url: req.path, message: error.message };
