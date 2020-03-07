@@ -128,4 +128,4 @@ app.delete("/api/objects/:uid", async (req, res) => {
 
 
 // port used. former is for azure
-module.exports = app.listen(process.env.PORT || 4000);
+module.exports = app.listen(process.env.PORT || 3000);
