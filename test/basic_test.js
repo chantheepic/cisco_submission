@@ -40,7 +40,18 @@ describe("Basic REST Check", () => {
       });
   });
 
-  it("get item", done => {
+  it("get items", done => {
+    request(app)
+      .get(`/api/objects`)
+      .then(res => {
+        expect(res.status).to.equal(200);
+        expect(res.body[0]).to.have.any.keys(['url']);
+        done();
+      });
+  });
+
+
+  it("put item", done => {
     request(app)
       .patch(`/api/objects/${testTargetId}`)
       .send({ title: "movie title" , cast: "movie cast"})

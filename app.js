@@ -7,18 +7,19 @@ require("dotenv/config");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Initial appllcation connects to the db
 mongoose.connect(process.env.AZURE_MONGO_CREDENTIALS, () =>
   console.log("connected")
 );
 
-// Schemas
+// Schemas. Arbitrary model allows for any object
 const ArbitrarySchema = mongoose.Schema(
   {},
   { strict: false, versionKey: false }
 );
 const ArbitraryModel = mongoose.model("ArbitraryModel", ArbitrarySchema);
 
-// Helpers
+// Helpers. Helper functions to reduce duplication of fragile functions
 jsonReplaceKey = string => {
   string = JSON.stringify(string);
   string = string.replace(/\"_id\":/g, '"uid":');
@@ -34,7 +35,7 @@ fullPath = (req, path = undefined) => {
   });
 }
 
-// Error
+// Error. Error handing for malformed JSON
 let sendError = (req, errorMessage) => {
   return { verb: req.method, url: fullPath(req), message: errorMessage };
 };
@@ -42,11 +43,15 @@ app.use((error, req, res, next) => {
   res.json({ verb: req.method, url: fullPath(req), message: error.message });
 });
 
-// Routes
+// Routes. Normally, A router would be used but since this is a 5 endpoint API, I find putting everything in a single file easier to refer back to.
+// Once the number of routes hits about 7, it would be wise to move the routes into separate files and implement them as modules.
+
+// ping and check state of node controller
 app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
+// return all the urls for existing objects
 app.get("/api/objects", async (req, res) => {
   try {
     let response = await ArbitraryModel.find().distinct("_id");
@@ -57,6 +62,7 @@ app.get("/api/objects", async (req, res) => {
   }
 });
 
+// get specific document
 app.get("/api/objects/:uid", async (req, res) => {
   try {
     let clean = sanitize(req.params.uid);
@@ -71,6 +77,7 @@ app.get("/api/objects/:uid", async (req, res) => {
   }
 });
 
+// add new document
 app.post("/api/objects", async (req, res) => {
   try {
     let clean = sanitize(req.body);
@@ -85,6 +92,7 @@ app.post("/api/objects", async (req, res) => {
   }
 });
 
+// update a document
 app.patch("/api/objects/:uid", async (req, res) => {
   try {
     let resp = await ArbitraryModel.findOneAndUpdate(
@@ -105,6 +113,7 @@ app.patch("/api/objects/:uid", async (req, res) => {
   }
 });
 
+// delete a document
 app.delete("/api/objects/:uid", async (req, res) => {
   try {
     await ArbitraryModel.remove({ _id: req.params.uid });
@@ -114,4 +123,6 @@ app.delete("/api/objects/:uid", async (req, res) => {
   }
 });
 
+
+// port used. former is for azure
 module.exports = app.listen(process.env.PORT || 3000);
