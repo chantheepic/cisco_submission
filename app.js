@@ -55,7 +55,10 @@ app.get("/ping", (req, res) => {
 app.get("/api/objects", async (req, res) => {
   try {
     let response = await ArbitraryModel.find().distinct("_id");
-    response = response.map(url => {return {"url": fullPath(req, url)}})
+    response = response.map(id => {
+      let path = `api/objects/${id}`
+      return {"url": fullPath(req, path)}
+    })
     res.json(response);
   } catch (error) {
     res.json(sendError(req, error.message));
