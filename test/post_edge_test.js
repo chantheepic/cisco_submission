@@ -13,7 +13,7 @@ describe("Edge POST Check", () => {
       .then(res => {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.all.keys(['uid']);
-        testTargetId = res.body.uid;
+        emptyBodyId = res.body.uid;
         done();
       });
   });
