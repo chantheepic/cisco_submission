@@ -18,7 +18,7 @@ describe("Edge GET Check", () => {
 
   // ID Invalid
   it("ID Invalid, invalid character", done => {
-    let fakeTarget = "*" + testTargetId.slice(1);
+    let fakeTarget = "." + testTargetId.slice(1);
     request(app)
       .get(`/api/objects/${fakeTarget}`)
       .send({ title: "movie title", cast: "movie cast" })
@@ -28,7 +28,7 @@ describe("Edge GET Check", () => {
           verb: "GET",
           message: `Cast to ObjectId failed for value "${fakeTarget}" at path "_id" for model "ArbitraryModel"`
         });
-        expect(res.body.url).to.match(/(.+):\/\/(.+)\/api\/objects\/(.+)/);
+        expect(res.body.url).to.match(new RegExp(`(.+):\/\/(.+)\/api\/objects\/${fakeTarget}`));
         done();
       });
   });
@@ -44,7 +44,7 @@ describe("Edge GET Check", () => {
           verb: "GET",
           message: `Cast to ObjectId failed for value "${fakeTarget}" at path "_id" for model "ArbitraryModel"`
         });
-        expect(res.body.url).to.match(/(.+):\/\/(.+)\/api\/objects\/(.+)/);
+        expect(res.body.url).to.match(new RegExp(`(.+):\/\/(.+)\/api\/objects\/${fakeTarget}`));
         done();
       });
   });
@@ -61,7 +61,7 @@ describe("Edge GET Check", () => {
           verb: "GET",
           message: "object does not exist"
         });
-        expect(res.body.url).to.match(/(.+):\/\/(.+)\/api\/objects\/(.+)/);
+        expect(res.body.url).to.match(new RegExp(`(.+):\/\/(.+)\/api\/objects\/${fakeTarget}`));
         done();
       });
   });
