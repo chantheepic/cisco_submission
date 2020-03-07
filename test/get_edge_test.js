@@ -21,7 +21,6 @@ describe("Edge GET Check", () => {
     let fakeTarget = "." + testTargetId.slice(1);
     request(app)
       .get(`/api/objects/${fakeTarget}`)
-      .send({ title: "movie title", cast: "movie cast" })
       .then(res => {
         expect(res.status).to.equal(200);
         expect(res.body).to.include({
@@ -37,7 +36,6 @@ describe("Edge GET Check", () => {
     let fakeTarget = "000000000000000000000";
     request(app)
       .get(`/api/objects/${fakeTarget}`)
-      .send({ title: "movie title", cast: "movie cast" })
       .then(res => {
         expect(res.status).to.equal(200);
         expect(res.body).to.include({
@@ -54,7 +52,6 @@ describe("Edge GET Check", () => {
     let fakeTarget = "000000000000000000000000";
     request(app)
       .get(`/api/objects/${fakeTarget}`)
-      .send({ title: "movie title", cast: "movie cast" })
       .then(res => {
         expect(res.status).to.equal(200);
         expect(res.body).to.include({

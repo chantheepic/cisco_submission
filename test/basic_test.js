@@ -70,4 +70,20 @@ describe("Basic REST Check", () => {
         done();
       });
   });
+
+
+  // Check item was actually deleted
+  it("get item", done => {
+    request(app)
+      .get(`/api/objects/${testTargetId}`)
+      .then(res => {
+        expect(res.status).to.equal(200);
+        expect(res.body).to.include({
+          verb: "GET",
+          message: "object does not exist"
+        });
+        expect(res.body.url).to.match(new RegExp(`(.+):\/\/(.+)\/api\/objects\/${testTargetId}`));
+        done();
+      });
+  });
 });
